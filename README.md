@@ -5,7 +5,7 @@ forge-bridge
 
 2) Adjust the parameters at the top of forge-bridge.py
 
-3) Run forge-brigde.py. It will create branches with series from the mailing list applied
+3) Run forge-bridge.py. It will create branches with series from the mailing list applied
    to the specified tree, and push them to a remote of your choice. It will ping the API
    every few minutes to check for new ones.
    
