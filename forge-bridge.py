@@ -58,7 +58,7 @@ def check_and_apply_events(last_event: Optional[int]) -> int:
 
     if events.status_code != 200:
         print("Events not fetched successfully")
-        return False
+        sys.exit(1)
 
     print("Got events")
     for event in events.json():
