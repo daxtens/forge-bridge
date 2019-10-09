@@ -19,7 +19,7 @@ def apply_series(series: dict) -> None:
 
     name = series['name']
     name = name.replace(' ', '_')
-    for delc in "()[]{}!@#$%^&*;:'\"?\\|+=-<>":
+    for delc in "()[]{}!@#$%^&*;:'\"?\\|+=-<>.,":
         name = name.replace(delc, '')
 
     with open('mboxfile', 'wb') as f:
