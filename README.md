@@ -8,3 +8,6 @@ forge-bridge
 3) Run forge-brigde.py. It will create branches with series from the mailing list applied
    to the specified tree, and push them to a remote of your choice. It will ping the API
    every few minutes to check for new ones.
+   
+   It will create a `last_event` file to track the event it is up to, and `mboxfile` which 
+   will contain the most recent mbox applied to the tree.

@@ -1,6 +1,7 @@
 import requests
 import os
 import time
+import sys
 from typing import Optional
 
 PATCHWORK_INSTANCE = "https://patchwork.ozlabs.org/api/1.1/"
@@ -26,20 +27,32 @@ def apply_series(series: dict) -> None:
     print(f'wrote {name} to "mboxfile"')
 
     print(f'fetch - git -C linux fetch {GIT_PULL_REMOTE}')
-    os.system(f"git -C linux fetch {GIT_PULL_REMOTE}")
+    if not os.system(f"git -C linux fetch {GIT_PULL_REMOTE}") == 0:
+        print("error fetching remote, aborting")
+        sys.exit(1)
+
     print(f'checkout - git -C linux checkout -b {name} {GIT_PULL_REMOTE}/{GIT_PULL_BRANCH}')
-    os.system(f"git -C linux checkout -b {name} {GIT_PULL_REMOTE}/{GIT_PULL_BRANCH}")
+    if not os.system(f"git -C linux checkout -b {name} {GIT_PULL_REMOTE}/{GIT_PULL_BRANCH}") == 0:
+        print("could not checkout new branch, aborting")
+        sys.exit(1)
+
     print('apply - git -C linux am $(pwd)/mboxfile')
-    os.system("git -C linux am $(pwd)/mboxfile")
-    print(f'push - git -C linux push {GIT_PUSH_REMOTE} {name}')
-    os.system(f'git -C linux push {GIT_PUSH_REMOTE} {name}')
+    if not os.system("git -C linux am $(pwd)/mboxfile") == 0:
+        print("git am failed, cleaning up")
+        os.system("git -C linux am --abort")
+    else:
+        print(f'push - git -C linux push {GIT_PUSH_REMOTE} {name}')
+        if not os.system(f'git -C linux push {GIT_PUSH_REMOTE} {name}') == 0:
+            print("failed to push, aborting")
+            sys.exit(1)
+
     print(f'cleanup - git -C linux checkout {GIT_PULL_BRANCH}; git -C linux branch -D {name}')
     os.system(f'git -C linux checkout {GIT_PULL_BRANCH}')
     os.system(f'git -C linux branch -D {name}')
     print('done')
 
 
-def mainloop(last_event: Optional[int]) -> int:
+def check_and_apply_events(last_event: Optional[int]) -> int:
     print("Fetching events")
     events = requests.get(PATCHWORK_INSTANCE + 'events/?category=series-completed&project=' + PROJECT)
 
@@ -66,7 +79,7 @@ if __name__ == '__main__':
         last_event = None
 
     while True:
-        last_event = mainloop(last_event)
+        last_event = check_and_apply_events(last_event)
         print("handled events up to", last_event)
         with open('last_event', 'w') as f:
             f.write(str(last_event))
