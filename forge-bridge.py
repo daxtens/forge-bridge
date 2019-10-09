@@ -67,7 +67,7 @@ def check_and_apply_events(last_event: Optional[int]) -> int:
             print("Processing", event_id)
             print("Series is", event['payload']['series']['id'])
             apply_series(event['payload']['series'])
-            break
+
     return events.json()[0]['id']
 
 
