@@ -19,7 +19,7 @@ def apply_series(series: dict) -> None:
 
     name = series['name']
     name = name.replace(' ', '_')
-    for delc in "()[]{}!@#$%^&*;:'\"?\\|+=":
+    for delc in "()[]{}!@#$%^&*;:'\"?\\|+=-<>":
         name = name.replace(delc, '')
 
     with open('mboxfile', 'wb') as f:
@@ -41,8 +41,8 @@ def apply_series(series: dict) -> None:
         print("git am failed, cleaning up")
         os.system("git -C linux am --abort")
     else:
-        print(f'push - git -C linux push {GIT_PUSH_REMOTE} {name}')
-        if not os.system(f'git -C linux push {GIT_PUSH_REMOTE} {name}') == 0:
+        print(f'push - git -C linux push -f {GIT_PUSH_REMOTE} {name}')
+        if not os.system(f'git -C linux push -f {GIT_PUSH_REMOTE} {name}') == 0:
             print("failed to push, aborting")
             sys.exit(1)
 
